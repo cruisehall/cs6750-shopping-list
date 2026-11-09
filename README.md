@@ -11,13 +11,26 @@ keys, or type it when it is free text.
 ## Requirements
 
 - [uv](https://docs.astral.sh/uv/)
-- Python 3.8 or newer (uv will find or fetch one)
-- No third-party packages. The script uses only the standard library, so there
-  is no install step and no virtual environment to manage.
+- Python 3.12 or newer (uv will find or fetch one)
+- Dependencies are declared in `pyproject.toml` and locked in `uv.lock`.
+  `shopping_assistant.py` uses only the standard library; `scipy` is used by
+  `initial_prototypes/evaluation.py`.
+
+## Install
+
+From the project root:
+
+```sh
+uv sync
+```
+
+This creates `.venv/` and installs the locked dependencies (including
+`scipy`). `uv run` also does this automatically on first use, so this step is
+optional.
 
 ## Run
 
-From the folder containing `shopping_assistant.py`:
+From the project root:
 
 ```sh
 uv run shopping_assistant.py
@@ -27,6 +40,14 @@ To pin a specific Python version:
 
 ```sh
 uv run --python 3.12 shopping_assistant.py
+```
+
+### Evaluation script
+
+From the project root:
+
+```sh
+uv run initial_prototypes/evaluation.py
 ```
 
 ### Options

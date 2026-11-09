@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 # Configuration
 # --------------------------------------------------------------------------
 
-WALK_ORDER = ["refrigerator", "pantry", "spice cabinet"]
+WALK_ORDER = ["refrigerator", "freezer", "pantry", "spice cabinet"]
 MAX_QTY = 50
 FULL_INSTRUCTIONS_EVERY_LOCALE = False  # True repeats the long instructions at every locale
 
@@ -51,14 +51,14 @@ SEED_LISTS = [
             {"name": "Italian sausage", "locales": ["refrigerator"]},
             {"name": "Russet potatoes", "locales": ["pantry"]},
             {"name": "Sun-dried tomatoes (in oil)", "locales": ["pantry", "refrigerator"]},
-            {"name": "Fennel seeds", "locales": ["spice cabinet"]},
-            {"name": "Half-and-half", "locales": ["refrigerator"]},
-            {"name": "Yellow onions", "locales": ["pantry"]},
-            {"name": "Baby spinach", "locales": ["refrigerator"]},
-            {"name": "Dried basil", "locales": ["spice cabinet"]},
-            {"name": "All-purpose flour", "locales": ["pantry"]},
-            {"name": "Unsalted butter", "locales": ["refrigerator"]},
-            {"name": "Cannellini beans (canned)", "locales": ["pantry"]},
+            # {"name": "Fennel seeds", "locales": ["spice cabinet"]},
+            # {"name": "Half-and-half", "locales": ["refrigerator"]},
+            # {"name": "Yellow onions", "locales": ["pantry"]},
+            # {"name": "Baby spinach", "locales": ["refrigerator"]},
+            # {"name": "Dried basil", "locales": ["spice cabinet"]},
+            # {"name": "All-purpose flour", "locales": ["pantry"]},
+            # {"name": "Unsalted butter", "locales": ["refrigerator"]},
+            # {"name": "Cannellini beans (canned)", "locales": ["pantry"]},
         ],
     },
     {
@@ -66,10 +66,10 @@ SEED_LISTS = [
         "kind": "staples",
         "items": [
             {"name": "eggs", "quantity": {"count": 12}, "locales": ["refrigerator"]},
-            {"name": "sliced cheese", "quantity": {"count": 8}, "locales": ["refrigerator"]},
+            # {"name": "sliced cheese", "quantity": {"count": 8}, "locales": ["refrigerator"]},
             {"name": "sliced turkey", "locales": ["refrigerator"]},
             {"name": "milk", "quantity": {"gallons": 1}, "locales": ["refrigerator"]},
-            {"name": "bread", "quantity": {"loaves": 2}, "locales": ["pantry", "refrigerator"]},
+            # {"name": "bread", "quantity": {"loaves": 2}, "locales": ["pantry", "freezer"]},
         ],
     },
 ]
@@ -96,6 +96,8 @@ INFERRED_LOCALES = {
     "butter": ["refrigerator"],
     "yogurt": ["refrigerator"],
     "orange juice": ["refrigerator"],
+    "ice cream": ["freezer"],
+    "chocolate syrup": ["refrigerator"]
 }
 DEFAULT_LOCALES = ["pantry"]
 
@@ -510,7 +512,7 @@ class Assistant:
 
     def collect_new_items(self) -> None:
         io = self.io
-        io.va("Ok ready when you are")
+        io.va("Ok ready when you are; just say 'Done' when your list is complete")
         new_items = []
         while True:
             said = io.text()
