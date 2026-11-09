@@ -55,26 +55,38 @@ items:
 
 - Each item has a **list of locales** where it might be (one or more). Only a
   few multi-locale examples are needed.
-- Locales walked: **refrigerator, pantry, spice cabinet**. Freezer is dropped.
+- Locales walked, in order: **refrigerator, freezer, pantry, spice cabinet**.
+  A locale with no pending items is skipped.
 - The **running shopping list** is separate from the staging lists and is
   **empty when the demo starts**.
 - Seed data is hard-coded: two preloaded staging lists (section 5). Locales for
   seed items are inferred, not supplied.
+- Lists are counted in the assistant's lines from the data, so trimming a list
+  changes the counts it reads out.
 
 ## 5. Seed data
 
-**Staging list 1: Recipe 4, Creamy Tuscan Sausage Soup** (12 items, no
+The lists are trimmed to keep the video short. Trimmed items are commented out
+in `SEED_LISTS` and can be restored by uncommenting them.
+
+**Staging list 1: Recipe 4, Creamy Tuscan Sausage Soup** (4 items, no
 quantities): Bay leaves, Italian sausage, Russet potatoes, Sun-dried tomatoes
-(in oil), Fennel seeds, Half-and-half, Yellow onions, Baby spinach, Dried basil,
-All-purpose flour, Unsalted butter, Cannellini beans (canned).
+(in oil).
+Commented out: Fennel seeds, Half-and-half, Yellow onions, Baby spinach, Dried
+basil, All-purpose flour, Unsalted butter, Cannellini beans (canned).
 
-**Staging list 2: Staples** (5 items, keep exactly these five):
-eggs (12), sliced cheese, sliced turkey, milk (1 gallon), bread.
+**Staging list 2: Staples** (3 items): eggs (12), sliced turkey, milk
+(1 gallon).
+Commented out: sliced cheese (8), bread (2 loaves; pantry or freezer).
 
-**Typed-in during the demo** (becomes the "Honey Garlic Salmon Bowl" list, 12
-items): Honey, Sesame Seeds, Edamame, Salmon Fillets, Garlic Powder, Jasmine
-Rice, Rice Vinegar, White Pepper, Scallions, Toasted Sesame Oil, Fresh Ginger,
-Soy Sauce.
+**Typed-in during the demo** (becomes the "Movie Night" list, 3 items; see
+DEMO.md): ice cream, chocolate syrup, popcorn.
+
+The locale lookup for typed-in items also covers the earlier "Honey Garlic
+Salmon Bowl" items (honey, sesame seeds, edamame, salmon fillets, garlic powder,
+jasmine rice, rice vinegar, white pepper, scallions, toasted sesame oil, fresh
+ginger, soy sauce) and some common refrigerator items (milk, eggs, cheese,
+butter, yogurt, orange juice).
 
 ## 6. Conversation flow
 
@@ -82,7 +94,7 @@ Soy Sauce.
 - user: Help me build my shopping list
 - va: Ok, would you like to add any other items to your staged lists? So far I have <N> ingredients for Creamy Tuscan Sausage Soup and your standard list of <N> staples.
 - user: Yes
-- va: Ok ready when you are
+- va: Ok ready when you are; just say 'Done' when your list is complete
 # for each item typed:
 - user: ${item}
 - va: <add ding>
@@ -90,11 +102,13 @@ Soy Sauce.
 - va: Ok, should we save this as a list for future reference?
 - user: Yes
 - va: What do you call this list?
-- user: Honey Garlic Salmon Bowl
-- va: Got it. Now I have <N> ingredients for Creamy Tuscan Sausage Soup, <N> ingredients for Honey Garlic Salmon Bowl, and your list of <N> staples. Do you want to add any other items to your staged lists?
+- user: Movie Night
+- va: Got it.
+- va: Now I have <N> ingredients for Creamy Tuscan Sausage Soup, <N> ingredients for Movie Night, and your list of <N> staples. Do you want to add any other items to your staged lists?
 - user: No
 - va: Ok, let's begin.
-# for each locale in [refrigerator, pantry, spice cabinet]:
+# for each locale in [refrigerator, freezer, pantry, spice cabinet] that has pending items:
+# (the long instructions below play at the first locale only; see section 9)
 - va: Walk to your ${locale} and say "Ready" when you're ready to begin. Then I'll read the items one at a time. Say "Yes" if you see the item, "No" if you don't see the item. If you're worried there may not be enough to last the week, you can ask "How much do I need?"
 - user: Ready
 # for each pending item that can be in this locale:
@@ -148,7 +162,6 @@ Counts (`<N>`) come from the data, not hard-coded text.
   or typed).
 - A "try the <locale>" command.
 - Handling items that already exist on the running shopping list.
-- Freezer as a locale.
 - Combining or totaling quantities across lists.
 - Real speech recognition, wake words, and Vosk or Whisper integration.
 - Demonstrating the error path in the video (happy path only).
@@ -157,16 +170,24 @@ Counts (`<N>`) come from the data, not hard-coded text.
 
 - Arrow-key menus use only the standard library (no third-party packages).
 - Locales for seed and typed-in items were inferred. Multi-locale examples:
-  sun-dried tomatoes, sesame seeds, soy sauce, bread. A typed-in item that matches
+  sun-dried tomatoes (refrigerator, pantry), sesame seeds, and soy sauce. A typed-in item that matches
   an existing staged item by name reuses its locales. Other typed-in items not in the
   lookup default to the pantry.
-- Seed quantities for staples follow the YAML example: bread 2 loaves, sliced
-  cheese 8, milk 1 gallon, eggs 12. Sliced turkey has none.
+- Seed quantities for staples: eggs 12, milk 1 gallon, sliced turkey none.
+  The commented-out items keep theirs (sliced cheese 8, bread 2 loaves).
 - A plain "No" with no quantity question adds the item with its listed
   quantity, if any.
-- Extra assistant lines: "Ok, I'll ask again at the <locale>." after a deferred
-  "No", "Sent to your phone." after the send-to-phone ding, and "That's your
-  whole list." after reading aloud.
+- Extra assistant lines:
+  - "Ok, I'll ask again at the <locale>." after a deferred "No".
+  - "Sent to your phone." after the send-to-phone ding.
+  - "That's your whole list." after reading aloud.
+  - "Ok, I'll use them for this trip only." when new items are not saved. They
+    go into an unsaved list called "Extra items".
+  - "Ok, no new items." when the user says "Done" without typing any items.
+  - "Ok, I'll add one." when no valid quantity is given after 2 tries.
+- If no list name is given after 2 tries, the new list is called "My list".
+- New lists are placed before the staples list, so staples are always
+  summarized last.
 - The long walk instructions play at the first locale only. Later locales get
   the short "Walk to your <locale> and say Ready" line.
 - The "might also be in" hint lists only locales still to come.
@@ -179,8 +200,9 @@ Counts (`<N>`) come from the data, not hard-coded text.
 
 ## 10. Open items
 
-- The script's original counts ("10 ingredients", "15 staples") differ from the
-  data (12 and 5). The data was treated as correct.
+- The script's original counts ("10 ingredients", "15 staples") differed from
+  the data. The lists have since been trimmed to 4 and 3 items for the video,
+  and the counts are always read from the data.
 - An end-of-session summary of skipped items was discussed and is not in the
   final flow, so it is not implemented.
 - Voice quality (default macOS `say` versus a more realistic voice) is
